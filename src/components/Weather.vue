@@ -48,28 +48,43 @@
         Pressure: {{pressure}} mb
       </v-flex>
     </v-layout>
+    <v-divider></v-divider>
+    <v-layout row wrap align-center justify-space-around py-4>
+      <v-flex xs2 class="title">
+        <v-icon medium color="red lighten-1">fa-thermometer-half</v-icon>
+        Current Temp: {{currentTemp}}˚
+      </v-flex>
+      <v-divider vertical></v-divider>
+      <v-flex xs2 class="title">
+        <v-icon medium color="blue lighten-1">fa-wind</v-icon>
+        Wind: {{wind}}
+      </v-flex>
+      <v-divider vertical></v-divider>
+      <v-flex xs2 class="title">
+        <v-icon medium color="green lighten-1">fa-tint</v-icon>
+        Humidity: {{humidity}}
+      </v-flex>
+      <v-divider vertical></v-divider>
+      <v-flex xs2 class="title">
+        <v-icon medium color="orange lighten-1">fa-tachometer-alt</v-icon>
+        Pressure: {{pressure}} mb
+      </v-flex>
+    </v-layout>
     <v-layout row wrap justify-center>
       <v-flex xs3>
-        <v-card color="white">
-          <v-img src="https://cdn.vuetifyjs.com/images/cards/desert.jpg" aspect-ratio="2.75"></v-img>
-
-          <v-card-title primary-title class="black--text">
-            <div>
-              <h3 class="headline mb-0">
-                <v-icon large color="grey lighten-1">fa-cloud</v-icon>Kangaroo Valley Safari
-              </h3>
-              <div color="black">Located two hours south of Sydney in the
-                <br>Southern Highlands of New South Wales, ...
-              </div>
-            </div>
-          </v-card-title>
-
-          <v-card-actions>
-            <v-btn flat color="orange">Share</v-btn>
-            <v-btn flat color="orange">Explore</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
+            <v-card color="white" class="black--text">
+              <v-card-title primary-title>
+                <div>
+                  <div class="headline"><v-icon medium color="green lighten-1">fa-tint</v-icon>
+        Humidity</div>
+                  <v-layout row justify-center style="height:40vh; width:14vw; display:inline-block;"><v-flex xs12><DoughnutChart :humData="humidity"/></v-flex></v-layout>
+                </div>
+              </v-card-title>
+              <v-card-actions>
+                <v-btn flat dark>Listen now</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-flex>
       <v-flex xs3>
         <v-card color="white">
           <v-img src="https://cdn.vuetifyjs.com/images/cards/desert.jpg" aspect-ratio="2.75"></v-img>
@@ -131,7 +146,7 @@
     <v-layout row justify-center>
       <v-flex xs12>
         <div>
-          <BarChart/>
+          <BarChart :chartdata="childdata"/>
         </div>
       </v-flex>
     </v-layout>
@@ -143,6 +158,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import axios from "axios";
 import AutoComplete from "./AutoComplete.vue";
 import BarChart from "./BarChart.vue";
+import DoughnutChart from './DoughnutChart.vue';
 
 const Url = "http://api.openweathermap.org/data/2.5/weather?";
 const API = "&units=metric&cnt=5&appid=75a15324ebe115ba6f8593b59036af57";
@@ -152,7 +168,8 @@ const ForcastAPI = '&units=metric&appid=75a15324ebe115ba6f8593b59036af57';
 @Component({
   components: {
     AutoComplete,
-    BarChart
+    BarChart,
+    DoughnutChart,
   }
 })
 export default class Weather extends Vue {
@@ -170,10 +187,10 @@ export default class Weather extends Vue {
   public autocomplete = "";
   public lon ="";
   public lat = "";
+  public childdata = '';
 
   public getWeather(url: any) {
     axios.get(url).then(response => {
-
         this.location = response.data.name;
         this.lon = response.data.coord.lon;
         this.lat = response.data.coord.lat;
@@ -195,10 +212,11 @@ export default class Weather extends Vue {
   }
     public getForcast(url: any) {
     axios.get(url).then(response => {
-        console.log('forcast response' + JSON.stringify(response));
+        // console.log('forcast response' + JSON.stringify(response));
     });
   }
   public OnChildData(dataValue: any) {
+    this.childdata = dataValue;
     this.getWeather(Url + "q=" + dataValue + API);
     if (dataValue != "") {
       localStorage.setItem("location", JSON.stringify({ data: dataValue }));
